@@ -1,10 +1,16 @@
 package com.stackroute.datamunger.reader;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.Date;
+import java.util.regex.Pattern;
 
 import com.stackroute.datamunger.query.DataTypeDefinitions;
 import com.stackroute.datamunger.query.Header;
+
+import javax.xml.crypto.Data;
 
 public class CsvQueryProcessor extends QueryProcessingEngine {
 
@@ -12,9 +18,14 @@ public class CsvQueryProcessor extends QueryProcessingEngine {
 	 * Parameterized constructor to initialize filename. As you are trying to
 	 * perform file reading, hence you need to be ready to handle the IO Exceptions.
 	 */
-	
-	public CsvQueryProcessor(String fileName) throws FileNotFoundException {
 
+	private String Filename;
+	private Header h;
+	// Parameterized constructor to initialize filename
+	public CsvQueryProcessor(String fileName) throws FileNotFoundException {
+		BufferedReader Buff = new BufferedReader(new FileReader(fileName));
+		this.Filename=fileName;
+		this.h = new Header();
 	}
 
 	/*
@@ -24,8 +35,14 @@ public class CsvQueryProcessor extends QueryProcessingEngine {
 
 	@Override
 	public Header getHeader() throws IOException {
-		
-		return null;
+		//Header h=new Header();
+		BufferedReader Buff = new BufferedReader(new FileReader(this.Filename));
+		String text = Buff.readLine();
+		String[] columns=text.split(",");
+		h.setFileds(columns);
+		// read the first line
+		// populate the header object with the String array containing the header names
+		return h;
 	}
 
 	/**
@@ -52,6 +69,45 @@ public class CsvQueryProcessor extends QueryProcessingEngine {
 	
 	@Override
 	public DataTypeDefinitions getColumnType() throws IOException {
+
+		DataTypeDefinitions data=new DataTypeDefinitions();
+		BufferedReader Buff = new BufferedReader(new FileReader(this.Filename));
+		String text = Buff.readLine();
+		String[] column1 = text.split(",");
+		h.setFileds(column1);
+		String[] dataType = {""};
+		String[] s3 = h.getHeaders();
+		String[] columns;
+		if ((text = Buff.readLine()) != null) {
+			columns = text.split(",", s3.length);
+			dataType = new String[columns.length];
+			for (int i = 0; i < columns.length; i++) {
+				try {
+					int t = Integer.parseInt(columns[i]);
+					Object o = t;
+					String s = o.getClass().getName();
+					dataType[i] = s;
+				} catch (NumberFormatException e) {
+					if(Pattern.matches("^(\\d{4})(-)(((0)[0-9])|((1)[0-2]))(-)([0-2][0-9]|(3)[0-1])$",columns[i])) {
+						Date d= new Date();
+						String s=d.getClass().getName();
+						dataType[i]=s;
+					}
+					else if(columns[i].equals("")){
+						Object o=new Object();
+						String s=o.getClass().getName();
+						dataType[i]=s;
+					}
+					else{
+						String s1 = columns[i].getClass().getName();
+						dataType[i] = s1;
+					}
+				}
+			}
+		}
+		data.setDatatype(dataType);
+		return data;
+	}
 		
 		// checking for Integer
 
@@ -71,7 +127,5 @@ public class CsvQueryProcessor extends QueryProcessingEngine {
 
 		// checking for date format yyyy-mm-dd
 
-		return null;
-	}
 
 }
