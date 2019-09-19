@@ -83,19 +83,67 @@ public class CsvQueryProcessor extends QueryProcessingEngine {
 			dataType = new String[columns.length];
 			for (int i = 0; i < columns.length; i++) {
 				try {
+					// checking for Integer
 					int t = Integer.parseInt(columns[i]);
 					Object o = t;
 					String s = o.getClass().getName();
 					dataType[i] = s;
-				} catch (NumberFormatException e) {
-					if(Pattern.matches("^(\\d{4})(-)(((0)[0-9])|((1)[0-2]))(-)([0-2][0-9]|(3)[0-1])$",columns[i])) {
-						Date d= new Date();
-						String s=d.getClass().getName();
-						dataType[i]=s;
+				}
+				catch (NumberFormatException e) {
+					// checking for floating point numbers
+					if(Pattern.matches("[0-9]{1,13}(\\.[0-9]*)",columns[i])){
+						Double d=new Double(columns[i]);
+						dataType[i]=d.getClass().getName();
 					}
 					else if(columns[i].equals("")){
 						Object o=new Object();
 						String s=o.getClass().getName();
+						dataType[i]=s;
+					}
+					// checking for date format yyyy-mm-dd
+					else if(Pattern.matches("^(\\d{4})(-)(((0)[0-9])|((1)[0-2]))(-)([0-2][0-9]|(3)[0-1])$",columns[i])) {
+						Date d= new Date();
+						String s=d.getClass().getName();
+						dataType[i]=s;
+					}
+					// checking for date format dd/mm/yyyy
+					else if(Pattern.matches("^([0-2][0-9])|(3)[0-1](\\/)(((0)[0-9])|((1)[0-2]))(\\/)\\d{4}$",columns[i])){
+						Date d= new Date();
+						String s=d.getClass().getName();
+						dataType[i]=s;
+					}
+					// checking for date format mm/dd/yyyy
+					else if(Pattern.matches("^(((0)[0-9])|((1)[0-2]))(\\/)([0-2][0-9])|(3)[0-1](\\/)\\d{4}$",columns[i])){
+						Date d= new Date();
+						String s=d.getClass().getName();
+						dataType[i]=s;
+					}
+					// checking for date format dd-mon-yy
+					else if(Pattern.matches("^([0-2][0-9])|(3)[0-1](\\/)([Jan]|[Feb]|[Mar]|[Apr]|[May]|[Jun]|[Jul]|" +
+							"[Aug]|[Sep]|[Oct]|[Nov]|[Dec])(\\/)\\d{2}$",columns[i])){
+						Date d= new Date();
+						String s=d.getClass().getName();
+						dataType[i]=s;
+					}
+					// checking for date format dd-mon-yyyy
+					else if(Pattern.matches("^([0-2][0-9])|(3)[0-1](\\/)([Jan]|[Feb]|[Mar]|[Apr]|[May]|[Jun]|[Jul]|" +
+							"[Aug]|[Sep]|[Oct]|[Nov]|[Dec])(\\/)\\d{4}$",columns[i])){
+						Date d= new Date();
+						String s=d.getClass().getName();
+						dataType[i]=s;
+					}
+					// checking for date format dd-month-yy
+					else if(Pattern.matches("^([0-2][0-9])|(3)[0-1](\\/)([January]|[February]|[March]|[April]|[May]|[June]|[July]|" +
+							"[August]|[September]|[October]|[November]|[December])(\\/)\\d{2}$",columns[i])){
+						Date d= new Date();
+						String s=d.getClass().getName();
+						dataType[i]=s;
+					}
+					// checking for date format dd-month-yyyy
+					else if(Pattern.matches("^([0-2][0-9])|(3)[0-1](\\/)([January]|[February]|[March]|[April]|[May]|[June]|[July]|" +
+							"[August]|[September]|[October]|[November]|[December])(\\/)\\d{4}$",columns[i])){
+						Date d= new Date();
+						String s=d.getClass().getName();
 						dataType[i]=s;
 					}
 					else{
@@ -108,24 +156,9 @@ public class CsvQueryProcessor extends QueryProcessingEngine {
 		data.setDatatype(dataType);
 		return data;
 	}
-		
-		// checking for Integer
 
-		// checking for floating point numbers
 
-		// checking for date format dd/mm/yyyy
 
-		// checking for date format mm/dd/yyyy
-
-		// checking for date format dd-mon-yy
-
-		// checking for date format dd-mon-yyyy
-
-		// checking for date format dd-month-yy
-
-		// checking for date format dd-month-yyyy
-
-		// checking for date format yyyy-mm-dd
 
 
 }
